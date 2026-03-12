@@ -4,9 +4,13 @@ generator.py — Claude message writer in Cash's voice
 
 import anthropic
 import json
+import os
+from dotenv import load_dotenv
 from database import get_learning_stats, save_message_draft
 
-CLAUDE_API_KEY = "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"
+load_dotenv()
+
+CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
 
 
 def get_client():

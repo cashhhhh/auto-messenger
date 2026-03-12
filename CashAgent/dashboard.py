@@ -8,7 +8,9 @@ from tkinter import ttk, messagebox, scrolledtext
 import threading
 import asyncio
 import json
+import subprocess
 from datetime import datetime
+from pathlib import Path
 
 from database import (
     init_db, get_leads_for_queue,
@@ -50,6 +52,8 @@ class AgentDashboard:
         tk.Label(top, text="AI Sales Agent", font=("Helvetica", 10), bg=BG, fg=GRAY).pack(side="left", padx=10)
         tk.Button(top, text="↻ Refresh", font=("Helvetica", 9), bg=SURFACE, fg=WHITE, relief="flat",
                   cursor="hand2", command=self._refresh_stats).pack(side="right", padx=4)
+        tk.Button(top, text="⬆ Update", font=("Helvetica", 9), bg=SURFACE, fg=GOLD, relief="flat",
+                  cursor="hand2", command=self._update_app).pack(side="right", padx=4)
         tk.Button(top, text="✅ Mark Sold", font=("Helvetica", 9), bg=SURFACE, fg=GREEN, relief="flat",
                   cursor="hand2", command=self._mark_sold_dialog).pack(side="right", padx=4)
         tk.Frame(self.root, bg=GOLD, height=1).pack(fill="x")
@@ -213,6 +217,29 @@ class AgentDashboard:
         self.learning_text.delete("1.0", "end")
         self.learning_text.insert("end", text)
         self.learning_text.configure(state="disabled")
+
+    def _update_app(self):
+        self._log("Updating...")
+        def run():
+            try:
+                app_dir = Path(__file__).parent
+                result = subprocess.run(
+                    ["git", "pull", "origin", "main"],
+                    cwd=app_dir,
+                    capture_output=True,
+                    text=True,
+                    timeout=30
+                )
+                if result.returncode == 0:
+                    self._log("✓ Update complete. Restart app to load changes.")
+                else:
+                    error_msg = result.stderr or result.stdout or "Unknown error"
+                    self._log(f"Update failed: {error_msg[:200]}")
+            except subprocess.TimeoutExpired:
+                self._log("Update timed out.")
+            except Exception as e:
+                self._log(f"Update error: {str(e)[:200]}")
+        threading.Thread(target=run, daemon=True).start()
 
     def _sync_leads(self):
         self._log("Starting Tekion sync...")
