@@ -9,6 +9,9 @@ import os
 import re
 from typing import Optional
 from pydantic import BaseModel
+from dotenv import load_dotenv
+
+load_dotenv()
 
 os.environ["BROWSER_USE_VERSION_CHECK"] = "false"
 os.environ["ANONYMIZED_TELEMETRY"] = "false"
@@ -20,11 +23,11 @@ from browser_use.browser.session import BrowserSession
 from database import upsert_lead, log_scrape_run
 from lead_validator import validate_and_enrich, verify_scrape_count
 
-# ── HARDCODED CREDENTIALS ─────────────────────────────────────────────────────
-CLAUDE_API_KEY = "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"
-TEKION_URL     = "https://app.tekioncloud.com/login?redirectTo=/"
-TEKION_USER    = "Cash.mccombs@grubbs.com"
-TEKION_PASS    = "Winecountry25!"
+# ── LOAD CREDENTIALS FROM ENVIRONMENT ──────────────────────────────────────────
+CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
+TEKION_URL     = os.getenv("TEKION_URL", "https://app.tekioncloud.com/login?redirectTo=/")
+TEKION_USER    = os.getenv("TEKION_USERNAME")
+TEKION_PASS    = os.getenv("TEKION_PASSWORD")
 
 
 class HaikuLLM(ChatAnthropic):
