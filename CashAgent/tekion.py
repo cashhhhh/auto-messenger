@@ -30,8 +30,7 @@ TEKION_USER    = os.getenv("TEKION_USERNAME")
 TEKION_PASS    = os.getenv("TEKION_PASSWORD")
 
 
-class HaikuLLM(ChatAnthropic):
-    provider: str = "anthropic"
+# No custom LLM wrapper needed - use ChatAnthropic directly
 
 
 class LeadRecord(BaseModel):
@@ -55,12 +54,14 @@ async def on_step(state, output, step_num):
 
 async def run_scrape() -> dict:
     print("Building LLM...")
-    llm = HaikuLLM(
+    llm = ChatAnthropic(
         model="claude-haiku-4-5",
         api_key=CLAUDE_API_KEY,
         timeout=60,
         max_retries=2,
     )
+    llm.provider = "anthropic"
+    llm.model_name = "claude-haiku-4-5"
     print("LLM ready.")
 
     task = f"""

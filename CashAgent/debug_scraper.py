@@ -51,20 +51,20 @@ class ScrapedLeads(BaseModel):
     leads: list[LeadRecord]
     total_count_on_page: int
 
-class HaikuLLM(ChatAnthropic):
-    provider: str = "anthropic"
-
 async def test_scrape():
     print("\n=== TESTING TEKION SCRAPER ===\n")
 
     print("Step 1: Creating LLM...")
     try:
-        llm = HaikuLLM(
+        llm = ChatAnthropic(
             model="claude-haiku-4-5",
             api_key=CLAUDE_API_KEY,
             timeout=60,
             max_retries=2,
         )
+        # browser-use needs these attributes
+        llm.provider = "anthropic"
+        llm.model_name = "claude-haiku-4-5"
         print("✓ LLM created")
     except Exception as e:
         print(f"✗ LLM creation failed: {e}")
